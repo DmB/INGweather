@@ -97,43 +97,41 @@ def GetHum():
 
 
 class TerminalViewer(QtGui.QWidget):
-	def __init__(self,app,parent=None):
-            QtGui.QWidget.__init__(self,parent)
-            self.Label = QtGui.QLabel("Waiting for Something",self)
+    def __init__(self,app,parent=None):
+        QtGui.QWidget.__init__(self,parent)
+        self.Label = QtGui.QLabel("Waiting for Something",self)
+        self.trayIcon = QtGui.QSystemTrayIcon(QtGui.QIcon("button.png"), app)
+        self.menu = QtGui.QMenu()
+        self.exitAction = self.menu.addAction("Exit")
+        self.trayIcon.setContextMenu(self.menu)
 
-            self.trayIcon = QtGui.QSystemTrayIcon(QtGui.QIcon("button.png"), app)
-            self.menu = QtGui.QMenu()
-            self.exitAction = self.menu.addAction("Exit")
-            self.trayIcon.setContextMenu(self.menu)
+        self.DataCollector = TerminalX(self)
+        self.connect(self.DataCollector,QtCore.SIGNAL("Activated ( QString ) "), self.Activated)
+        self.DataCollector.start()
 
-            self.DataCollector = TerminalX(self)
-            self.connect(self.DataCollector,QtCore.SIGNAL("Activated ( QString ) "), self.Activated)
-            self.DataCollector.start()
-                
-                
-            self.trayIcon.show()
-            self.exitAction.connect(self.exitAction, SIGNAL("triggered()"), app, SLOT("quit()"))
-            self.connect(self.DataCollector,QtCore.SIGNAL("SetNewHum ( QString ) "), self.SetNewHum)
-        def Activated(self,newtext):
-            self.Label.setText(newtext)
-        def SetNewHum(self,Hum):
-            GetHum()
-            self.trayIcon.setIcon(QtGui.QIcon(Hum))
-            print Hum
-	def closeEvent(self,e):
-            e.accept()
-            app.exit()
+        self.trayIcon.show()
+        self.exitAction.connect(self.exitAction, SIGNAL("triggered()"), app, SLOT("quit()"))
+        self.connect(self.DataCollector,QtCore.SIGNAL("SetNewHum ( QString ) "), self.SetNewHum)
+    def Activated(self,newtext):
+        self.Label.setText(newtext)
+    def SetNewHum(self,Hum):
+        GetHum()
+        self.trayIcon.setIcon(QtGui.QIcon(Hum))
+        print Hum
+    def closeEvent(self,e):
+        e.accept()
+        app.exit()
 
 class TerminalX(QtCore.QThread):
-	def __init__(self,parent=None):
-            QtCore.QThread.__init__(self,parent)
+    def __init__(self,parent=None):
+        QtCore.QThread.__init__(self,parent)
 
-	def run(self):
-            global timeout
-            while True:
-                time.sleep(timeout)
-                self.emit(QtCore.SIGNAL("SetNewHum( QString )"),"button.png")
-                print "################################################"
+    def run(self):
+        global timeout
+        while True:
+            time.sleep(timeout)
+            self.emit(QtCore.SIGNAL("SetNewHum( QString )"),"button.png")
+            print "################################################"
 
 
 def main():
