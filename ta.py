@@ -3,10 +3,10 @@ import sys
 from PyQt4 import QtGui
 from PyQt4.QtCore import SLOT
 from PyQt4.QtCore import SIGNAL
-from PyQt4 import QtGui,QtCore
+from PyQt4 import QtCore
 from PIL import Image
 import ImageOps
-import ImageDraw, ImageFont, sys
+import ImageDraw, ImageFont
 import time
 from urllib2 import urlopen
 import lxml.html
