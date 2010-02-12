@@ -18,21 +18,30 @@ url = "http://catserver.ing.iac.es/weather/index.php?miniview=1"
 tempdir = "/tmp/ingweather"
 timeout = 150
 
-if not os.access(tempdir, os.F_OK):
+if not os.access(tempdir, os.F_OK): #check if folder exists
   os.mkdir(tempdir)
 
 def wrNumb(Hum):
     im = Image.open("/usr/share/ingweather/data/square-mask.png")
     font = ImageFont.truetype("/usr/share/ingweather/data/dsfont.ttf", 96)
     draw = ImageDraw.Draw(im)
-    Hum = "75"
-    if int(Hum) < 65: #FIXME in case of broken data it will crash program
+
+    intHum = int(Hum)#FIXME in case of broken data it will crash program
+    #choose color
+    if intHum < 65:
       color = "rgb(9,249,17)"
-    elif int(Hum) < 75:
+    elif intHum < 75:
       color = "rgb(255,255,0)"
     else:
       color = "rgb(255,0,0)"
-    draw.text((5, 10), Hum, font=font, fill=color)
+
+    #align position
+    if intHum < 10:
+      pos = (35, 10)
+    else:
+      pos = (6, 10)
+
+    draw.text(pos, Hum, font=font, fill=color)
     del draw
     im.save('/tmp/ingweather/numb.png')
 
