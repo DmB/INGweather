@@ -25,9 +25,14 @@ def wrNumb(Hum):
     im = Image.open("/usr/share/ingweather/data/square-mask.png")
     font = ImageFont.truetype("/usr/share/ingweather/data/dsfont.ttf", 96)
     draw = ImageDraw.Draw(im)
-    # draw.line((0, 0) + im.size, fill=128)
-    # draw.line((0, im.size[1], im.size[0], 0), fill=128)
-    draw.text((5, 10), Hum, font=font, fill='red')
+    Hum = "75"
+    if int(Hum) < 65: #FIXME in case of broken data it will crash program
+      color = "rgb(9,249,17)"
+    elif int(Hum) < 75:
+      color = "rgb(255,255,0)"
+    else:
+      color = "rgb(255,0,0)"
+    draw.text((5, 10), Hum, font=font, fill=color)
     del draw
     im.save('/tmp/ingweather/numb.png')
 
