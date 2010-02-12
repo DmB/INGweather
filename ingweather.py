@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 import sys
 from PyQt4 import QtGui
 from PyQt4.QtCore import SLOT
@@ -11,29 +12,32 @@ import time
 from urllib2 import urlopen
 import lxml.html
 from StringIO import StringIO
-
+import os
 
 url = "http://catserver.ing.iac.es/weather/index.php?miniview=1"
+tempdir = "/tmp/ingweather"
 timeout = 150
 
+if not os.access(tempdir, os.F_OK):
+  os.mkdir(tempdir)
 
 def wrNumb(Hum):
-    im = Image.open("square-mask.png")
-    font = ImageFont.truetype("dsfont.ttf", 96)
+    im = Image.open("/usr/share/ingweather/data/square-mask.png")
+    font = ImageFont.truetype("/usr/share/ingweather/data/dsfont.ttf", 96)
     draw = ImageDraw.Draw(im)
     # draw.line((0, 0) + im.size, fill=128)
     # draw.line((0, im.size[1], im.size[0], 0), fill=128)
     draw.text((5, 10), Hum, font=font, fill='red')
     del draw
-    im.save('numb.png')
+    im.save('/tmp/ingweather/numb.png')
 
 
 
 def creIma(Hum):
     wrNumb(Hum)
-    highlight = Image.open('square.png')
-    mask = Image.open('square-mask.png')
-    icon = Image.open('numb.png').convert('RGBA')
+    highlight = Image.open('/usr/share/ingweather/data/square.png')
+    mask = Image.open('/usr/share/ingweather/data/square-mask.png')
+    icon = Image.open('/tmp/ingweather/numb.png').convert('RGBA')
     button = Image.new('RGBA', mask.size)
  
     # Resize Icon
@@ -58,7 +62,7 @@ def creIma(Hum):
     overlay = highlight.copy().convert('RGB')
     button.paste(overlay, mask=highlight)
  
-    button.save('button.png')
+    button.save('/tmp/ingweather/button.png')
 
 
 def parser():
@@ -100,7 +104,7 @@ class TerminalViewer(QtGui.QWidget):
     def __init__(self,app,parent=None):
         QtGui.QWidget.__init__(self,parent)
         self.Label = QtGui.QLabel("Waiting for Something",self)
-        self.trayIcon = QtGui.QSystemTrayIcon(QtGui.QIcon("button.png"), app)
+        self.trayIcon = QtGui.QSystemTrayIcon(QtGui.QIcon("/tmp/ingweather/button.png"), app)
         self.menu = QtGui.QMenu()
         self.exitAction = self.menu.addAction("Exit")
         self.trayIcon.setContextMenu(self.menu)
@@ -130,7 +134,7 @@ class TerminalX(QtCore.QThread):
         global timeout
         while True:
             time.sleep(timeout)
-            self.emit(QtCore.SIGNAL("SetNewHum( QString )"),"button.png")
+            self.emit(QtCore.SIGNAL("SetNewHum( QString )"),"/tmp/ingweather/button.png")
             print "################################################"
 
 
