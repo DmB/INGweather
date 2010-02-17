@@ -113,6 +113,30 @@ def GetHum():
             creIma(Hum)
             return Hum
 
+class AlarmWindow(QtGui.QDialog):
+    def __init__(self, parent = None):
+        QtGui.QDialog.__init__(self, parent)
+        okButton = QtGui.QPushButton("&OK")
+        cancelButton = QtGui.QPushButton("&Cancel")
+        self.connect(cancelButton, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("hhide()"))#"reject()"))
+        buttonLayout = QtGui.QHBoxLayout()
+        buttonLayout.addStretch(1)
+        buttonLayout.addWidget(okButton)
+        buttonLayout.addWidget(cancelButton)
+        
+        layout = QtGui.QVBoxLayout()
+        #layout.addWidget(self.textEdit)
+        layout.addLayout(buttonLayout)
+        self.setLayout(layout)
+
+    @QtCore.pyqtSlot()
+    def hhide(self):
+	self.hide()
+	return
+    @QtCore.pyqtSlot()
+    def rise(self):
+        self.show()
+        return
 
 class TerminalViewer(QtGui.QWidget):
     def __init__(self,app,parent=None):
@@ -120,6 +144,8 @@ class TerminalViewer(QtGui.QWidget):
         self.Label = QtGui.QLabel("Waiting for Something",self)
         self.trayIcon = QtGui.QSystemTrayIcon(QtGui.QIcon("/tmp/ingweather/button.png"), app)
         self.menu = QtGui.QMenu()
+        self.alarmAction = self.menu.addAction("Setup alarm")
+        self.confAction = self.menu.addAction("Configure")
         self.exitAction = self.menu.addAction("Exit")
         self.trayIcon.setContextMenu(self.menu)
 
@@ -129,7 +155,12 @@ class TerminalViewer(QtGui.QWidget):
 
         self.trayIcon.show()
         self.exitAction.connect(self.exitAction, SIGNAL("triggered()"), app, SLOT("quit()"))
+
         self.connect(self.DataCollector,QtCore.SIGNAL("SetNewHum ( QString ) "), self.SetNewHum)
+        #self.trayIcon.showMessage( "Warning", "Humidity increases", QtGui.QSystemTrayIcon.Warning, 10000)
+        
+        self.alarmClockWindow = AlarmWindow()
+        self.alarmAction.connect(self.alarmAction, SIGNAL("triggered()"), self.alarmClockWindow, SLOT("rise()"))
     def Activated(self,newtext):
         self.Label.setText(newtext)
     def SetNewHum(self,Hum):
@@ -139,6 +170,7 @@ class TerminalViewer(QtGui.QWidget):
     def closeEvent(self,e):
         e.accept()
         app.exit()
+
 
 class TerminalX(QtCore.QThread):
     def __init__(self,parent=None):
